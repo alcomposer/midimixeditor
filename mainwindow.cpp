@@ -5,6 +5,7 @@
 #include "rtmidi/RtMidi.h"
 #include <QDebug>
 #include "mycallback.h"
+#include <QGridLayout>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent),

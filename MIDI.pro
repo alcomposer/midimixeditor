@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     mycallback.cpp \
     iomidiselect.cpp \
-    iomididialog.cpp
+    iomididialog.cpp \
+    rslider.cpp
 
 HEADERS += \
         mainwindow.h \
     mycallback.h \
     iomidiselect.h \
-    iomididialog.h
+    iomididialog.h \
+    rslider.h
 
 LIBS += -L "rtmidi/" -lrtmidi
 

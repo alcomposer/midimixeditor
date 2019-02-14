@@ -52,16 +52,21 @@ MainWindow::MainWindow(QWidget *parent)
 		sliders.at(i)->setMinimum(0);
 		sliders.at(i)->setMaximum(127);
 		MIDIMIX_layout->addWidget(sliders.at(i),5,i);
-		MIDIMIX_layout->setRowStretch(5,1);//set sliders row to stretch
+		MIDIMIX_layout->setRowMinimumHeight(5,100);//set sliders row to stretch
+		MIDIMIX_layout->setSpacing(10);
+		//MIDIMIX_layout->setSizeConstraint(QLayout::Set);
 		//MIDIMIX_layout->setAlignment(sliders.at(i),Qt::AlignCenter);
 
 		if (i < 8){
 			for (int j = 0; j < 3; j++){
 				int current = (i*3)+j;
-				rsliders.push_back(new QDial());
-				rsliders.at(current)->setMinimum(0);
-				rsliders.at(current)->setMaximum(127);
+				rsliders.push_back(new RSlider(this));
+				rsliders.at(current)->r_slider->setMinimum(0);
+				rsliders.at(current)->r_slider->setMaximum(127);
+				MIDIMIX_layout->setSpacing(0);
+				MIDIMIX_layout->setMargin(0);
 				MIDIMIX_layout->setRowStretch(j,0);
+				MIDIMIX_layout->setColumnStretch(i,0);
 				MIDIMIX_layout->addWidget(rsliders.at(current),j,i);
 			}
 			for (int j = 0; j < 2; j++){
@@ -143,37 +148,37 @@ void MainWindow::setSlider(int v, int cc, int value)
 	if (cc == 62) sliders.at(8)->setValue(value);
 
 	//Radial Sliders
-	if (cc == 16) rsliders.at(0)->setValue(value);
-	if (cc == 17) rsliders.at(1)->setValue(value);
-	if (cc == 18) rsliders.at(2)->setValue(value);
+	if (cc == 16) rsliders.at(0)->r_slider->setValue(value);
+	if (cc == 17) rsliders.at(1)->r_slider->setValue(value);
+	if (cc == 18) rsliders.at(2)->r_slider->setValue(value);
 
-	if (cc == 20) rsliders.at(3)->setValue(value);
-	if (cc == 21) rsliders.at(4)->setValue(value);
-	if (cc == 22) rsliders.at(5)->setValue(value);
+	if (cc == 20) rsliders.at(3)->r_slider->setValue(value);
+	if (cc == 21) rsliders.at(4)->r_slider->setValue(value);
+	if (cc == 22) rsliders.at(5)->r_slider->setValue(value);
 
-	if (cc == 24) rsliders.at(6)->setValue(value);
-	if (cc == 25) rsliders.at(7)->setValue(value);
-	if (cc == 26) rsliders.at(8)->setValue(value);
+	if (cc == 24) rsliders.at(6)->r_slider->setValue(value);
+	if (cc == 25) rsliders.at(7)->r_slider->setValue(value);
+	if (cc == 26) rsliders.at(8)->r_slider->setValue(value);
 
-	if (cc == 28) rsliders.at(9)->setValue(value);
-	if (cc == 29) rsliders.at(10)->setValue(value);
-	if (cc == 30) rsliders.at(11)->setValue(value);
+	if (cc == 28) rsliders.at(9)->r_slider->setValue(value);
+	if (cc == 29) rsliders.at(10)->r_slider->setValue(value);
+	if (cc == 30) rsliders.at(11)->r_slider->setValue(value);
 
-	if (cc == 46) rsliders.at(12)->setValue(value);
-	if (cc == 47) rsliders.at(13)->setValue(value);
-	if (cc == 48) rsliders.at(14)->setValue(value);
+	if (cc == 46) rsliders.at(12)->r_slider->setValue(value);
+	if (cc == 47) rsliders.at(13)->r_slider->setValue(value);
+	if (cc == 48) rsliders.at(14)->r_slider->setValue(value);
 
-	if (cc == 50) rsliders.at(15)->setValue(value);
-	if (cc == 51) rsliders.at(16)->setValue(value);
-	if (cc == 52) rsliders.at(17)->setValue(value);
+	if (cc == 50) rsliders.at(15)->r_slider->setValue(value);
+	if (cc == 51) rsliders.at(16)->r_slider->setValue(value);
+	if (cc == 52) rsliders.at(17)->r_slider->setValue(value);
 
-	if (cc == 54) rsliders.at(18)->setValue(value);
-	if (cc == 55) rsliders.at(19)->setValue(value);
-	if (cc == 56) rsliders.at(20)->setValue(value);
+	if (cc == 54) rsliders.at(18)->r_slider->setValue(value);
+	if (cc == 55) rsliders.at(19)->r_slider->setValue(value);
+	if (cc == 56) rsliders.at(20)->r_slider->setValue(value);
 
-	if (cc == 58) rsliders.at(21)->setValue(value);
-	if (cc == 59) rsliders.at(22)->setValue(value);
-	if (cc == 60) rsliders.at(23)->setValue(value);
+	if (cc == 58) rsliders.at(21)->r_slider->setValue(value);
+	if (cc == 59) rsliders.at(22)->r_slider->setValue(value);
+	if (cc == 60) rsliders.at(23)->r_slider->setValue(value);
 	}
 
 	//buttons

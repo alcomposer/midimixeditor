@@ -11,6 +11,7 @@
 #include <QPlainTextEdit>
 #include <QMenu>
 #include "iomididialog.h"
+#include "rslider.h"
 
 class MainWindow : public QMainWindow
 {
@@ -40,7 +41,7 @@ private:
 	void createMenues();
 
 	QVector<QSlider*> sliders;
-	QVector<QDial*> rsliders;
+	QVector<RSlider*> rsliders;
 	QVector<QPushButton*> buttons;
 	void setMidiValue();
 	myCallback * midiCallback;

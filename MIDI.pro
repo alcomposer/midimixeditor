@@ -27,11 +27,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    mycallback.cpp
+    mycallback.cpp \
+    iomidiselect.cpp \
+    iomididialog.cpp
 
 HEADERS += \
         mainwindow.h \
-    mycallback.h
+    mycallback.h \
+    iomidiselect.h \
+    iomididialog.h
 
 LIBS += -L "rtmidi/" -lrtmidi
 

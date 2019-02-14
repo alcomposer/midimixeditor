@@ -188,7 +188,7 @@ void MainWindow::save()
 			stream << rsliders.at(i)->getChanNumber()-1 << endl;
 		}
 		saveData.close();
-	}
+	} else saveAs();
 }
 
 void MainWindow::saveAs()

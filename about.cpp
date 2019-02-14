@@ -6,19 +6,29 @@ About::About(QWidget * parent) :
 	QDialog(parent)
 {
 	setWindowTitle(tr("About MIDImix Editor"));
-	QLabel * aboutInfo = new QLabel(this);
-	aboutInfo->setText("Copyright 2019 Alexander Waite Mitchell.\n\
-						All rights reserved.\n\n\
-						Using RtMidi & Qt\n\n\
-						This software is free / libre software, GPL3\n\
-						The program is provided AS IS with\n\
-						NO WARRANTY OF ANY KIND,\n\
-						INCLUDING THE WARRANTY OF DESIGN,\n\
-						MERCHANTABILITY AND FITNESS FOR\n\
-						A PARTICULAR PURPOSE.");
-	aboutInfo->setAlignment(Qt::AlignCenter);
 	QVBoxLayout * aboutLayout = new QVBoxLayout(this);
-	//aboutLayout->setAlignment(Qt::AlignCenter);
+
+	QLabel * midimixImage = new QLabel();
+	QPixmap midimixIcon(":icons/midimixedit.png");
+	midimixIcon = midimixIcon.scaledToWidth(128,Qt::SmoothTransformation);
+	midimixImage->setPixmap(midimixIcon);
+	midimixImage->setAlignment(Qt::AlignCenter);
+	aboutLayout->addWidget(midimixImage);
+
+
+	QLabel * aboutInfo = new QLabel();
+	aboutInfo->setText(QString("Copyright 2019 Alexander Waite Mitchell.\n") +
+						QString("All rights reserved.\n\n") +
+						QString("Using RtMidi & Qt\n\n")+
+						QString("This software is free / libre software, GPL3\n")+
+						QString("The program is provided AS IS with\n")+
+						QString("NO WARRANTY OF ANY KIND,\n") +
+						QString("INCLUDING THE WARRANTY OF DESIGN,\n") +
+						QString("MERCHANTABILITY AND FITNESS FOR\n") +
+						QString("A PARTICULAR PURPOSE."));
+	aboutInfo->setAlignment(Qt::AlignCenter);
+
 	aboutLayout->addWidget(aboutInfo);
+	//setFixedSize(aboutInfo->sizeHint());
 	setLayout(aboutLayout);
 }

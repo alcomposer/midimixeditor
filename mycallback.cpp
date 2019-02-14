@@ -18,9 +18,10 @@ myCallback::Callback(double deltatime,
 	int V = static_cast<int>(message->at(0));
 	int CC = static_cast<int>(message->at(1));
 	int Value = static_cast<int>(message->at(2));
-	emit sendMidi(V, CC, Value);
-	for (int i = 0; i < message->size(); i++){
-	qInfo() << message->at(i);
+
+	if (static_cast<int>(message->at(0))==240){
+		emit sendSysEx(message);
+	} else {
+		emit sendMidi(V, CC, Value);
 	}
-	qInfo() << "--------";
 }

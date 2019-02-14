@@ -1,5 +1,4 @@
-#ifndef IOMIDIDIALOG_H
-#define IOMIDIDIALOG_H
+#pragma once
 
 #include <QObject>
 #include <QDialog>
@@ -14,5 +13,3 @@ public:
 private:
 	IOMidiSelect * selectMIDI;
 };
-
-#endif // IOMIDIDIALOG_H

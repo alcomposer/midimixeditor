@@ -1,5 +1,4 @@
-#ifndef MYCALLBACK_H
-#define MYCALLBACK_H
+#pragma once
 
 #include <QObject>
 #include <QWidget>
@@ -12,6 +11,5 @@ public:
 	void Callback(double deltatime, std::vector<unsigned char> *message, void *userData);
 signals:
 	void sendMidi(int, int, int);
+	void sendSysEx(std::vector<unsigned char> *message);
 };
-
-#endif // MYCALLBACK_H

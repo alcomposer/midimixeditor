@@ -11,6 +11,7 @@ RSlider::RSlider(QWidget *parent) :
 	cc_number(new QSpinBox(this)),
 	r_slider_layout(new QVBoxLayout(this))
 {
+	r_slider->setDisabled(true);
 	QHBoxLayout * chan_number_layout = new QHBoxLayout();
 	QHBoxLayout * cc_number_layout = new QHBoxLayout();
 	QLabel * chan_label = new QLabel(tr("CH:"));
@@ -42,4 +43,22 @@ RSlider::RSlider(QWidget *parent) :
 	r_slider_layout->setMargin(0);
 	r_slider_layout->setSpacing(0);
 	setLayout(r_slider_layout);
+}
+
+void RSlider::setChanNumber(int value)
+{
+	chan_number->setValue(value);
+}
+
+void RSlider::setCCNumber(int value)
+{
+	cc_number->setValue(value);
+}
+int RSlider::getChanNumber()
+{
+	return chan_number->value();
+}
+int RSlider::getCCNumber()
+{
+	return cc_number->value();
 }

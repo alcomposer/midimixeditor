@@ -1,5 +1,4 @@
-#ifndef RSLIDER_H
-#define RSLIDER_H
+#pragma once
 
 #include <QObject>
 #include <QWidget>
@@ -14,6 +13,8 @@ class RSlider : public QWidget
 public:
 	explicit RSlider(QWidget *parent = nullptr);
 	QDial * r_slider;
+	int getChanNumber();
+	int getCCNumber();
 private:
 	QVBoxLayout * r_slider_layout;
 	QSpinBox * chan_number;
@@ -21,6 +22,6 @@ private:
 signals:
 
 public slots:
+	void setChanNumber(int);
+	void setCCNumber(int);
 };
-
-#endif // RSLIDER_H

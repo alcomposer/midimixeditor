@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QSlider>
@@ -34,6 +33,9 @@ public:
 	QAction* midiSetupAct;
 	QAction* quitAct;
 
+	QMenu* helpMenu;
+	QAction* aboutAct;
+
 	RtMidiIn * midiIn;
 	RtMidiOut * midiOut;
 private:
@@ -50,6 +52,10 @@ private:
 	unsigned int currentInPort;
 	unsigned int currentOutPort;
 
+	QString workingFile = "";
+	QString workingFileNew = "";
+
+
 private slots:
 	void setSlider(int, int, int);
 
@@ -61,10 +67,10 @@ private slots:
 	void sendToHardware();
 	void midiSetup();
 	void quit();
+	void about();
+
+	void setSysEx(std::vector<unsigned char>*);
 public slots:
 	void setMidiInPort(const int);
 	void setMidiOutPort(const int);
 };
-
-
-#endif // MAINWINDOW_H

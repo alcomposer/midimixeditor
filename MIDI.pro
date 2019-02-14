@@ -30,14 +30,16 @@ SOURCES += \
     mycallback.cpp \
     iomidiselect.cpp \
     iomididialog.cpp \
-    rslider.cpp
+    rslider.cpp \
+    about.cpp
 
 HEADERS += \
         mainwindow.h \
     mycallback.h \
     iomidiselect.h \
     iomididialog.h \
-    rslider.h
+    rslider.h \
+    about.h
 
 LIBS += -L "rtmidi/" -lrtmidi
 
@@ -45,3 +47,9 @@ LIBS += -L "rtmidi/" -lrtmidi
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    icons/midimixedit.png
+
+RESOURCES += \
+    icons/icons.qrc

@@ -1,5 +1,5 @@
-#ifndef IOMIDISELECT_H
-#define IOMIDISELECT_H
+#pragma once
+
 #include <QObject>
 #include <QWidget>
 #include <QComboBox>
@@ -24,5 +24,3 @@ signals:
 
 public slots:
 };
-
-#endif // IOMIDISELECT_H

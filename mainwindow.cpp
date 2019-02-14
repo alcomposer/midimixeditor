@@ -14,13 +14,12 @@
 #include <QApplication>
 #include <QFileDialog>
 #include "iomididialog.h"
+#include "about.h"
 
-#define appname "MIDImix Editor"
-
-MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent),
+MainWindow::MainWindow(QWidget *parent) :
+	QMainWindow(parent),
 	midiCallback(new myCallback()),
-	app_name(new QString(tr("MIDImix Editor"))),
+	app_name(new QString(tr("MIDI MIX EDIT"))),
 	midi_io_dialog(new IOMidiDialog(this)),
 	currentInPort(0),
 	currentOutPort(0)
@@ -49,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QGridLayout * MIDIMIX_layout = new QGridLayout(mainWindow);
 	for (int i =0; i < 9; i++){
 		sliders.push_back(new QSlider());
+		sliders.at(i)->setDisabled(true);
 		sliders.at(i)->setMinimum(0);
 		sliders.at(i)->setMaximum(127);
 		MIDIMIX_layout->addWidget(sliders.at(i),5,i);
@@ -78,23 +78,17 @@ MainWindow::MainWindow(QWidget *parent)
 		}
 	}
 	connect(midiCallback, SIGNAL(sendMidi(int,int,int)), this, SLOT(setSlider(int,int,int)));
+	connect(midiCallback, SIGNAL(sendSysEx(std::vector<unsigned char>*)), this, SLOT(setSysEx(std::vector<unsigned char>*)));
 
 	text_window = new QPlainTextEdit();
 	text_window->setFont(QFont("mono"));
 	text_window->setReadOnly(true);
 
-	QTextEdit * midiDeviceSelect = new QTextEdit();  //temp text, use qdropdown
 
-	QVBoxLayout * mainWindowLayout = new QVBoxLayout();
+	QHBoxLayout * mainWindowLayout = new QHBoxLayout();
 	mainWindowLayout->addWidget(mainWindow);
+	mainWindowLayout->addWidget(text_window);
 
-	QHBoxLayout * bottomWindowLayout = new QHBoxLayout();
-	QWidget * bottomWindow = new QWidget();
-	bottomWindowLayout->addWidget(text_window);
-	bottomWindowLayout->addWidget(midiDeviceSelect);
-
-	bottomWindow->setLayout(bottomWindowLayout);
-	mainWindowLayout->addWidget(bottomWindow);
 	window->setLayout(mainWindowLayout);
 
 	setCentralWidget(window);
@@ -117,8 +111,10 @@ void MainWindow::createActions()
 	openPresetAct = new QAction(tr("&Open Preset..."), this);
 
 	saveAct = new QAction(tr("&Save"), this);
+	connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
 	saveAsAct = new QAction(tr("&Save As..."), this);
+	connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
 	loadFromHardwareAct = new QAction(tr("&Load From Hardware"), this);
 	connect(loadFromHardwareAct, SIGNAL(triggered()), this, SLOT(loadFromHardware()));
@@ -130,12 +126,15 @@ void MainWindow::createActions()
 
 	quitAct = new QAction(tr("&Quit"), this);
 	connect(quitAct, SIGNAL(triggered()), this, SLOT(quit()));
+
+	aboutAct = new QAction(tr("&About"), this);
+	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 }
 
 void MainWindow::setSlider(int v, int cc, int value)
 {
 	//Vertical Sliders
-	text_window->appendPlainText("V: " + QString::number(v,16) + " CC: " + QString::number(cc,16) + " Value: " + QString::number(value));
+	text_window->appendPlainText("V: " + QString::number(v) + " CC: " + QString::number(cc) + " Value: " + QString::number(value));
 	if (v == 176){
 	if (cc == 19) sliders.at(0)->setValue(value);
 	if (cc == 23) sliders.at(1)->setValue(value);
@@ -148,39 +147,10 @@ void MainWindow::setSlider(int v, int cc, int value)
 	if (cc == 62) sliders.at(8)->setValue(value);
 
 	//Radial Sliders
-	if (cc == 16) rsliders.at(0)->r_slider->setValue(value);
-	if (cc == 17) rsliders.at(1)->r_slider->setValue(value);
-	if (cc == 18) rsliders.at(2)->r_slider->setValue(value);
-
-	if (cc == 20) rsliders.at(3)->r_slider->setValue(value);
-	if (cc == 21) rsliders.at(4)->r_slider->setValue(value);
-	if (cc == 22) rsliders.at(5)->r_slider->setValue(value);
-
-	if (cc == 24) rsliders.at(6)->r_slider->setValue(value);
-	if (cc == 25) rsliders.at(7)->r_slider->setValue(value);
-	if (cc == 26) rsliders.at(8)->r_slider->setValue(value);
-
-	if (cc == 28) rsliders.at(9)->r_slider->setValue(value);
-	if (cc == 29) rsliders.at(10)->r_slider->setValue(value);
-	if (cc == 30) rsliders.at(11)->r_slider->setValue(value);
-
-	if (cc == 46) rsliders.at(12)->r_slider->setValue(value);
-	if (cc == 47) rsliders.at(13)->r_slider->setValue(value);
-	if (cc == 48) rsliders.at(14)->r_slider->setValue(value);
-
-	if (cc == 50) rsliders.at(15)->r_slider->setValue(value);
-	if (cc == 51) rsliders.at(16)->r_slider->setValue(value);
-	if (cc == 52) rsliders.at(17)->r_slider->setValue(value);
-
-	if (cc == 54) rsliders.at(18)->r_slider->setValue(value);
-	if (cc == 55) rsliders.at(19)->r_slider->setValue(value);
-	if (cc == 56) rsliders.at(20)->r_slider->setValue(value);
-
-	if (cc == 58) rsliders.at(21)->r_slider->setValue(value);
-	if (cc == 59) rsliders.at(22)->r_slider->setValue(value);
-	if (cc == 60) rsliders.at(23)->r_slider->setValue(value);
+	for (int i = 0; i < rsliders.count(); i++){
+	if (cc == rsliders.at(i)->getCCNumber()) rsliders.at(i)->r_slider->setValue(value);
 	}
-
+}
 	//buttons
 	if (cc == 1) buttons.at(0)->setDown(++button_state[0]%2);
 	if (cc == 3) buttons.at(1)->setDown(++button_state[1]%2);
@@ -192,12 +162,12 @@ void MainWindow::newPreset()
 {
 	QFileDialog * newPresetDialog = new QFileDialog();
 	newPresetDialog->setFileMode(QFileDialog::AnyFile);
-	QString strFile = newPresetDialog->getSaveFileName(this, "Create New Preset");
-	QFile newPreset(strFile);
+	workingFile = newPresetDialog->getSaveFileName(this, "Create New Preset");
+	QFile newPreset(workingFile);
 	newPreset.open(QIODevice::WriteOnly);
 	newPreset.close();
 	delete newPresetDialog;
-	setWindowTitle(*app_name + QString(": ") + strFile);
+	setWindowTitle(*app_name + QString(": ") + workingFile);
 }
 
 void MainWindow::openPreset()
@@ -207,17 +177,36 @@ void MainWindow::openPreset()
 
 void MainWindow::save()
 {
-
+	if(workingFile != ""){
+		qInfo() << "We have a data file";
+		QFile saveData(workingFile);
+		saveData.open(QIODevice::WriteOnly);
+		QTextStream stream(&saveData);
+		int i, j;
+		for (i = 0, j = 8; i < 24; i++, j+=2){
+			stream << rsliders.at(i)->getCCNumber() << endl;
+			stream << rsliders.at(i)->getChanNumber()-1 << endl;
+		}
+		saveData.close();
+	}
 }
 
 void MainWindow::saveAs()
 {
-
+	QFileDialog * savePresetAs = new QFileDialog();
+	savePresetAs->setFileMode(QFileDialog::AnyFile);
+	workingFileNew = savePresetAs->getSaveFileName(this, "Save Preset As");
+	delete savePresetAs;
+	if (workingFileNew != ""){
+		workingFile = workingFileNew;
+		save();
+		setWindowTitle(*app_name + QString(": ") + workingFile);
+	}
 }
 
 void MainWindow::loadFromHardware()
 {
-	qInfo() << "sysex from hardware:\n-------";
+	qInfo() << "[SysEx] loading from hardware";
 
 	std::vector<unsigned char> message;
 	message ={240, //sysex start
@@ -283,4 +272,21 @@ void MainWindow::createMenues(){
 	fileMenu->addAction(midiSetupAct);
 	fileMenu->addSeparator();
 	fileMenu->addAction(quitAct);
+
+	helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addAction(aboutAct);
+}
+void MainWindow::about(){
+	qInfo() << "showing about info";
+	About * aboutWindow = new About(this);
+	aboutWindow->show();
+}
+
+void MainWindow::setSysEx(std::vector<unsigned char> *message)
+{
+	int i, j;
+	for (i = 0, j = 8; i < 24; i++, j+=2){
+		rsliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
+		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
+	}
 }

@@ -135,7 +135,7 @@ void MainWindow::createActions()
 	quitAct = new QAction(tr("&Quit"), this);
 	connect(quitAct, SIGNAL(triggered()), this, SLOT(quit()));
 
-	showMidiConsoleAct = new QAction(tr("&Show MIDI Console"), this);
+	showMidiConsoleAct = new QAction(tr("&MIDI Console"), this);
 	showMidiConsoleAct->setCheckable(true);
 	showMidiConsoleAct->setChecked(true);
 	connect(showMidiConsoleAct, SIGNAL(toggled(bool)), this, SLOT(showMidiConsole(bool)));
@@ -300,10 +300,18 @@ void MainWindow::about(){
 
 void MainWindow::setSysEx(std::vector<unsigned char> *message)
 {
+
+	for (int i = 0; i < message->size(); i++){
+	qInfo() << static_cast<int>(message->at(i));
+	}
 	int i, j;
 	for (i = 0, j = 8; i < 24; i++, j+=2){
 		rsliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
 		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
+	}
+	for (i = 0, j = 56; i < 9; i++, j+=2){
+		sliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
+		sliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
 	}
 }
 

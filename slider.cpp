@@ -43,22 +43,20 @@ Slider::Slider(QWidget * parent) :
 	setLayout(slider_layout);
 }
 
+void Slider::setChanNumber(int value)
+{
+	chan_number->setValue(value);
+}
+
+void Slider::setCCNumber(int value)
+{
+	cc_number->setValue(value);
+}
 int Slider::getChanNumber()
 {
-
+	return chan_number->value();
 }
-
 int Slider::getCCNumber()
 {
-
-}
-
-void Slider::setChanNumber(int)
-{
-
-}
-
-void Slider::setCCNumber(int)
-{
-
+	return cc_number->value();
 }

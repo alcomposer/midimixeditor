@@ -31,7 +31,8 @@ SOURCES += \
     iomidiselect.cpp \
     iomididialog.cpp \
     rslider.cpp \
-    about.cpp
+    about.cpp \
+    slider.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
     iomidiselect.h \
     iomididialog.h \
     rslider.h \
-    about.h
+    about.h \
+    slider.h
 
 LIBS += -L "rtmidi/" -lrtmidi
 

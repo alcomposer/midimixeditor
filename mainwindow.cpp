@@ -1,11 +1,13 @@
 #include "mainwindow.h"
-#include "midi.h"
+#include "mycallback.h"
+#include "iomididialog.h"
+#include "about.h"
+
+#include "rtmidi/RtMidi.h"
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QSlider>
-#include "rtmidi/RtMidi.h"
 #include <QDebug>
-#include "mycallback.h"
 #include <QGridLayout>
 #include <QSizePolicy>
 #include <QTextEdit>
@@ -13,8 +15,6 @@
 #include <QMenuBar>
 #include <QApplication>
 #include <QFileDialog>
-#include "iomididialog.h"
-#include "about.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -47,10 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Draw layout for sliders/rsliders/buttons
 	QGridLayout * MIDIMIX_layout = new QGridLayout(mainWindow);
 	for (int i =0; i < 9; i++){
-		sliders.push_back(new QSlider());
-		sliders.at(i)->setDisabled(true);
-		sliders.at(i)->setMinimum(0);
-		sliders.at(i)->setMaximum(127);
+		sliders.push_back(new Slider());
+		sliders.at(i)->slider->setDisabled(true);
+		sliders.at(i)->slider->setMinimum(0);  //[todo] make a setMinimum() member in sliders.h
+		sliders.at(i)->slider->setMaximum(127); //[todo]make a setMaximum() member in slider.h
 		MIDIMIX_layout->addWidget(sliders.at(i),6,i);
 		MIDIMIX_layout->setRowMinimumHeight(6,100);//set sliders row to stretch
 		MIDIMIX_layout->setSpacing(10);
@@ -111,13 +111,13 @@ void MainWindow::createActions()
 	saveAct = new QAction(tr("&Save"), this);
 	connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-	saveAsAct = new QAction(tr("&Save As..."), this);
+	saveAsAct = new QAction(tr("Save &As..."), this);
 	connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
 	loadFromHardwareAct = new QAction(tr("&Load From Hardware"), this);
 	connect(loadFromHardwareAct, SIGNAL(triggered()), this, SLOT(loadFromHardware()));
 
-	sendToHardwareAct = new QAction(tr("&Send To Hardware"), this);
+	sendToHardwareAct = new QAction(tr("Send &To Hardware"), this);
 
 	midiSetupAct = new QAction(tr("&MIDI Setup"));
 	connect(midiSetupAct, SIGNAL(triggered()), this, SLOT(midiSetup()));
@@ -134,15 +134,15 @@ void MainWindow::setSlider(int v, int cc, int value)
 	//Vertical Sliders
 	text_window->appendPlainText("V: " + QString::number(v) + " CC: " + QString::number(cc) + " Value: " + QString::number(value));
 	if (v == 176){
-	if (cc == 19) sliders.at(0)->setValue(value);
-	if (cc == 23) sliders.at(1)->setValue(value);
-	if (cc == 27) sliders.at(2)->setValue(value);
-	if (cc == 31) sliders.at(3)->setValue(value);
-	if (cc == 49) sliders.at(4)->setValue(value);
-	if (cc == 53) sliders.at(5)->setValue(value);
-	if (cc == 57) sliders.at(6)->setValue(value);
-	if (cc == 61) sliders.at(7)->setValue(value);
-	if (cc == 62) sliders.at(8)->setValue(value);
+	if (cc == 19) sliders.at(0)->slider->setValue(value);
+	if (cc == 23) sliders.at(1)->slider->setValue(value);
+	if (cc == 27) sliders.at(2)->slider->setValue(value);
+	if (cc == 31) sliders.at(3)->slider->setValue(value);
+	if (cc == 49) sliders.at(4)->slider->setValue(value);
+	if (cc == 53) sliders.at(5)->slider->setValue(value);
+	if (cc == 57) sliders.at(6)->slider->setValue(value);
+	if (cc == 61) sliders.at(7)->slider->setValue(value);
+	if (cc == 62) sliders.at(8)->slider->setValue(value);
 
 	//Radial Sliders
 	for (int i = 0; i < rsliders.count(); i++){

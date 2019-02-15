@@ -1,16 +1,17 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QSlider>
 #include <QDial>
 #include <QPushButton>
-#include "rtmidi/RtMidi.h"
 #include <QDebug>
-#include "mycallback.h"
 #include <QPlainTextEdit>
 #include <QMenu>
+
+#include "rtmidi/RtMidi.h"
+#include "mycallback.h"
 #include "iomididialog.h"
 #include "rslider.h"
+#include "slider.h"
 
 class MainWindow : public QMainWindow
 {
@@ -42,7 +43,7 @@ private:
 	void createActions();
 	void createMenues();
 
-	QVector<QSlider*> sliders;
+	QVector<Slider*> sliders;
 	QVector<RSlider*> rsliders;
 	QVector<QPushButton*> buttons;
 	void setMidiValue();

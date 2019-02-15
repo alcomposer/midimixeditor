@@ -44,18 +44,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	midiIn->setCallback(&midiCallback->staticCallback, midiCallback);
 	QWidget * window = new QWidget(this);
 	QWidget * mainWindow = new QWidget();
-	//QHBoxLayout * slider_layout = new QHBoxLayout(window);
+	//Draw layout for sliders/rsliders/buttons
 	QGridLayout * MIDIMIX_layout = new QGridLayout(mainWindow);
 	for (int i =0; i < 9; i++){
 		sliders.push_back(new QSlider());
 		sliders.at(i)->setDisabled(true);
 		sliders.at(i)->setMinimum(0);
 		sliders.at(i)->setMaximum(127);
-		MIDIMIX_layout->addWidget(sliders.at(i),5,i);
-		MIDIMIX_layout->setRowMinimumHeight(5,100);//set sliders row to stretch
+		MIDIMIX_layout->addWidget(sliders.at(i),6,i);
+		MIDIMIX_layout->setRowMinimumHeight(6,100);//set sliders row to stretch
 		MIDIMIX_layout->setSpacing(10);
-		//MIDIMIX_layout->setSizeConstraint(QLayout::Set);
-		//MIDIMIX_layout->setAlignment(sliders.at(i),Qt::AlignCenter);
 
 		if (i < 8){
 			for (int j = 0; j < 3; j++){
@@ -69,8 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
 				MIDIMIX_layout->setColumnStretch(i,0);
 				MIDIMIX_layout->addWidget(rsliders.at(current),j,i);
 			}
-			for (int j = 0; j < 2; j++){
-				int current = (i*2)+j;
+			for (int j = 0; j < 3; j++){
+				int current = (i*3)+j;
 				buttons.push_back(new QPushButton());
 				button_state.push_back(0);
 				MIDIMIX_layout->addWidget(buttons.at(current),j+3,i);

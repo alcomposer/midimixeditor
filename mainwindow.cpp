@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QWidget * mainWindow = new QWidget();
 	//Draw layout for sliders/rsliders/buttons
 	QGridLayout * MIDIMIX_layout = new QGridLayout(mainWindow);
+
 	for (int i =0; i < 9; i++){
 		sliders.push_back(new Slider());
 		sliders.at(i)->slider->setDisabled(true);
@@ -54,6 +55,15 @@ MainWindow::MainWindow(QWidget *parent) :
 		MIDIMIX_layout->addWidget(sliders.at(i),6,i);
 		MIDIMIX_layout->setRowMinimumHeight(6,100);//set sliders row to stretch
 		MIDIMIX_layout->setSpacing(10);
+
+		if (i == 8){
+			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 1"),this),0,8);
+			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 2"),this),1,8);
+			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 3"),this),2,8);
+			MIDIMIX_layout->addWidget(new QLabel(tr("MUTE"),this),3,8);
+			MIDIMIX_layout->addWidget(new QLabel(tr("SOLO"),this),4,8);
+			MIDIMIX_layout->addWidget(new QLabel(tr("REC ARM"),this),5,8);
+		}
 
 		if (i < 8){
 			for (int j = 0; j < 3; j++){
@@ -81,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	text_window = new QPlainTextEdit();
 	text_window->setFont(QFont("mono"));
 	text_window->setReadOnly(true);
-
+	//text_window->setHidden(true);
 
 	QHBoxLayout * mainWindowLayout = new QHBoxLayout();
 	mainWindowLayout->addWidget(mainWindow);
@@ -124,6 +134,11 @@ void MainWindow::createActions()
 
 	quitAct = new QAction(tr("&Quit"), this);
 	connect(quitAct, SIGNAL(triggered()), this, SLOT(quit()));
+
+	showMidiConsoleAct = new QAction(tr("&Show MIDI Console"), this);
+	showMidiConsoleAct->setCheckable(true);
+	showMidiConsoleAct->setChecked(true);
+	connect(showMidiConsoleAct, SIGNAL(toggled(bool)), this, SLOT(showMidiConsole(bool)));
 
 	aboutAct = new QAction(tr("&About"), this);
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -271,6 +286,9 @@ void MainWindow::createMenues(){
 	fileMenu->addSeparator();
 	fileMenu->addAction(quitAct);
 
+	viewMenu = menuBar()->addMenu(tr("&View"));
+	viewMenu->addAction(showMidiConsoleAct);
+
 	helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(aboutAct);
 }
@@ -287,4 +305,9 @@ void MainWindow::setSysEx(std::vector<unsigned char> *message)
 		rsliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
 		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
 	}
+}
+
+void MainWindow::showMidiConsole(bool show)
+{
+	text_window->setHidden(!show);
 }

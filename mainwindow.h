@@ -34,6 +34,9 @@ public:
 	QAction* midiSetupAct;
 	QAction* quitAct;
 
+	QMenu* viewMenu;
+	QAction* showMidiConsoleAct;
+
 	QMenu* helpMenu;
 	QAction* aboutAct;
 
@@ -74,4 +77,5 @@ private slots:
 public slots:
 	void setMidiInPort(const int);
 	void setMidiOutPort(const int);
+	void showMidiConsole(bool);
 };

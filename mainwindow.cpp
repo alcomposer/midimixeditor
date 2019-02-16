@@ -91,14 +91,35 @@ MainWindow::MainWindow(QWidget *parent) :
 				MIDIMIX_layout->setColumnStretch(i,0);
 				MIDIMIX_layout->addWidget(rsliders.at(current),j,i);
 			}
-			for (int j = 0; j < 3; j++){
-				int current = (i*3)+j;
-				buttons.push_back(new Button());
-				button_state.push_back(0);
-				MIDIMIX_layout->addWidget(buttons.at(current),j+3,i);
-			}
 		}
 	}
+	/*
+	 * Add buttons, need to do this per row, not per column
+	 * becuase the second row of buttons represents the hidden state of the first row.
+	 * This means that the numbering of the buttons is:
+	 *
+	 *   0 |  1 |  2 |  3 |  4 |  5 |  6 |  7
+	 *  -------------------------------------
+	 *  16 | 17 | 18 | 19 | 20 | 21 | 22 | 23
+	 *  -------------------------------------
+	 *   8 |  9 | 10 | 11 | 12 | 13 | 14 | 15
+	 */
+	for (int x = 0; x < 8; x++){
+		int current = x;
+		buttons.push_back(new Button());
+		MIDIMIX_layout->addWidget(buttons.at(current),3,x);
+	}
+	for (int x = 0; x < 8; x++){
+		int current = x + 8;
+		buttons.push_back(new Button());
+		MIDIMIX_layout->addWidget(buttons.at(current),5,x);
+	}
+	for (int x = 0; x < 8; x++){
+		int current = x + 16;
+		buttons.push_back(new Button());
+		MIDIMIX_layout->addWidget(buttons.at(current),4,x);
+	}
+
 	connect(midiCallback, SIGNAL(sendMidi(int,int,int)), this, SLOT(setSlider(int,int,int)));
 	connect(midiCallback, SIGNAL(sendSysEx(std::vector<unsigned char>*)), this, SLOT(setSysEx(std::vector<unsigned char>*)));
 
@@ -159,7 +180,7 @@ void MainWindow::createActions()
 	showMidiChannelAct->setChecked(true);
 	connect(showMidiChannelAct, SIGNAL(toggled(bool)), this, SLOT(showMidiChannel(bool)));
 
-	showMidiCCAct = new QAction(tr("Display &CC"), this);
+	showMidiCCAct = new QAction(tr("Display &CC/Note"), this);
 	showMidiCCAct->setCheckable(true);
 	showMidiCCAct->setChecked(true);
 	connect(showMidiCCAct, SIGNAL(toggled(bool)), this, SLOT(showMidiCC(bool)));
@@ -189,8 +210,8 @@ void MainWindow::setSlider(int v, int cc, int value)
 	}
 }
 	//buttons
-	if (cc == 1) buttons.at(0)->button->setDown(++button_state[0]%2);
-	if (cc == 3) buttons.at(1)->button->setDown(++button_state[1]%2);
+	//if (cc == 1) buttons.at(0)->button->setDown(++button_state[0]%2);
+	//if (cc == 3) buttons.at(1)->button->setDown(++button_state[1]%2);
 
 
 }
@@ -331,13 +352,23 @@ void MainWindow::setSysEx(std::vector<unsigned char> *message)
 	qInfo() << static_cast<int>(message->at(i));
 	}
 	int i, j;
-	for (i = 0, j = 8; i < 24; i++, j+=2){
-		rsliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
-		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
+	for (i = 0, j = 7; i < 24; i++, j+=2){
+		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j)));
+		rsliders.at(i)->setCCNumber(static_cast<int>(message->at(j+1)));
 	}
-	for (i = 0, j = 56; i < 9; i++, j+=2){
-		sliders.at(i)->setCCNumber(static_cast<int>(message->at(j)));
-		sliders.at(i)->setChanNumber(static_cast<int>(message->at(j+1)));
+	for (i = 0, j = 55; i < 9; i++, j+=2){
+		sliders.at(i)->setChanNumber(static_cast<int>(message->at(j)));
+		sliders.at(i)->setCCNumber(static_cast<int>(message->at(j+1)));
+	}
+	for (i = 0, j = 73; i < 24; i++, j+=3){
+		buttons.at(i)->setChanNumber(static_cast<int>(message->at(j)));
+		if (message->at(j+1) == 0){
+			buttons.at(i)->setNoteNumber(static_cast<int>(message->at(j+2)));
+			buttons.at(i)->setButtonMode(BMode::NOTE);
+		} else {
+			buttons.at(i)->setCCNumber(static_cast<int>(message->at(j+2)));
+			buttons.at(i)->setButtonMode(BMode::CC);
+	};
 	}
 }
 

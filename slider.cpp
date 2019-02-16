@@ -32,11 +32,14 @@ Slider::Slider(QWidget * parent) :
 	chan_number_wid->setLayout(chan_number_layout);
 	cc_number_wid->setLayout(cc_number_layout);
 
-	slider_layout->addWidget(slider);
+
 	chan_number->setRange(1,16);
 	cc_number->setRange(0,127);
-	slider_layout->addWidget(chan_number_wid);
+	//add the widgets in the order we want them displaied
+	slider_layout->addWidget(slider);
 	slider_layout->addWidget(cc_number_wid);
+	slider_layout->addWidget(chan_number_wid);
+
 	slider_layout->setAlignment(Qt::AlignCenter);
 	slider_layout->setMargin(0);
 	slider_layout->setSpacing(0);

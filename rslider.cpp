@@ -36,11 +36,13 @@ RSlider::RSlider(QWidget *parent) :
 	chan_number_wid->setLayout(chan_number_layout);
 	cc_number_wid->setLayout(cc_number_layout);
 
-	r_slider_layout->addWidget(r_slider);
 	chan_number->setRange(1,16);
 	cc_number->setRange(0,127);
-	r_slider_layout->addWidget(chan_number_wid);
+	//add the widgets in the order we want them displaied
+	r_slider_layout->addWidget(r_slider);
 	r_slider_layout->addWidget(cc_number_wid);
+	r_slider_layout->addWidget(chan_number_wid);
+
 	r_slider_layout->setAlignment(Qt::AlignCenter);
 	r_slider_layout->setMargin(0);
 	r_slider_layout->setSpacing(0);

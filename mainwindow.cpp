@@ -2,6 +2,7 @@
 #include "mycallback.h"
 #include "iomididialog.h"
 #include "about.h"
+#include "button.h"
 
 #include "rtmidi/RtMidi.h"
 
@@ -22,7 +23,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	app_name(new QString(tr("MIDI MIX EDIT"))),
 	midi_io_dialog(new IOMidiDialog(this)),
 	currentInPort(0),
-	currentOutPort(0)
+	currentOutPort(0),
+	ROW_1(new   QLabel(tr("ROW 1"),this)),
+	ROW_2(new   QLabel(tr("ROW 2"),this)),
+	ROW_3(new   QLabel(tr("ROW 3"),this)),
+	_MUTE(new   QLabel(tr("MUTE"),this)),
+	_SOLO(new   QLabel(tr("SOLO"),this)),
+	REC_ARM(new QLabel(tr("REC ARM"),this))
 {
 	setWindowTitle(*app_name);
 
@@ -47,6 +54,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Draw layout for sliders/rsliders/buttons
 	QGridLayout * MIDIMIX_layout = new QGridLayout(mainWindow);
 
+	ROW_1->setAlignment(Qt::AlignTop);
+	ROW_2->setAlignment(Qt::AlignTop);
+	ROW_3->setAlignment(Qt::AlignTop);
+	_MUTE->setAlignment(Qt::AlignTop);
+	_SOLO->setAlignment(Qt::AlignTop);
+	REC_ARM->setAlignment(Qt::AlignTop);
+
 	for (int i =0; i < 9; i++){
 		sliders.push_back(new Slider());
 		sliders.at(i)->slider->setDisabled(true);
@@ -57,12 +71,12 @@ MainWindow::MainWindow(QWidget *parent) :
 		MIDIMIX_layout->setSpacing(10);
 
 		if (i == 8){
-			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 1"),this),0,8);
-			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 2"),this),1,8);
-			MIDIMIX_layout->addWidget(new QLabel(tr("ROW 3"),this),2,8);
-			MIDIMIX_layout->addWidget(new QLabel(tr("MUTE"),this),3,8);
-			MIDIMIX_layout->addWidget(new QLabel(tr("SOLO"),this),4,8);
-			MIDIMIX_layout->addWidget(new QLabel(tr("REC ARM"),this),5,8);
+			MIDIMIX_layout->addWidget(ROW_1,0,8);
+			MIDIMIX_layout->addWidget(ROW_2,1,8);
+			MIDIMIX_layout->addWidget(ROW_3,2,8);
+			MIDIMIX_layout->addWidget(_MUTE,3,8);
+			MIDIMIX_layout->addWidget(_SOLO,4,8);
+			MIDIMIX_layout->addWidget(REC_ARM,5,8);
 		}
 
 		if (i < 8){
@@ -79,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
 			}
 			for (int j = 0; j < 3; j++){
 				int current = (i*3)+j;
-				buttons.push_back(new QPushButton());
+				buttons.push_back(new Button());
 				button_state.push_back(0);
 				MIDIMIX_layout->addWidget(buttons.at(current),j+3,i);
 			}
@@ -140,6 +154,16 @@ void MainWindow::createActions()
 	showMidiConsoleAct->setChecked(true);
 	connect(showMidiConsoleAct, SIGNAL(toggled(bool)), this, SLOT(showMidiConsole(bool)));
 
+	showMidiChannelAct = new QAction(tr("Display C&hannel"), this);
+	showMidiChannelAct->setCheckable(true);
+	showMidiChannelAct->setChecked(true);
+	connect(showMidiChannelAct, SIGNAL(toggled(bool)), this, SLOT(showMidiChannel(bool)));
+
+	showMidiCCAct = new QAction(tr("Display &CC"), this);
+	showMidiCCAct->setCheckable(true);
+	showMidiCCAct->setChecked(true);
+	connect(showMidiCCAct, SIGNAL(toggled(bool)), this, SLOT(showMidiCC(bool)));
+
 	aboutAct = new QAction(tr("&About"), this);
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 }
@@ -165,8 +189,8 @@ void MainWindow::setSlider(int v, int cc, int value)
 	}
 }
 	//buttons
-	if (cc == 1) buttons.at(0)->setDown(++button_state[0]%2);
-	if (cc == 3) buttons.at(1)->setDown(++button_state[1]%2);
+	if (cc == 1) buttons.at(0)->button->setDown(++button_state[0]%2);
+	if (cc == 3) buttons.at(1)->button->setDown(++button_state[1]%2);
 
 
 }
@@ -288,6 +312,8 @@ void MainWindow::createMenues(){
 
 	viewMenu = menuBar()->addMenu(tr("&View"));
 	viewMenu->addAction(showMidiConsoleAct);
+	viewMenu->addAction(showMidiChannelAct);
+	viewMenu->addAction(showMidiCCAct);
 
 	helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(aboutAct);
@@ -318,4 +344,14 @@ void MainWindow::setSysEx(std::vector<unsigned char> *message)
 void MainWindow::showMidiConsole(bool show)
 {
 	text_window->setHidden(!show);
+}
+
+void MainWindow::showMidiCC(bool show)
+{
+	for(int i = 0; i < sliders.size(); i++) sliders.at(i)->set_cc_number_visibility(!show);
+}
+
+void MainWindow::showMidiChannel(bool show)
+{
+	for(int i = 0; i < sliders.size(); i++) sliders.at(i)->set_channel_number_visibility(!show);
 }

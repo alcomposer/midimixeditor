@@ -12,6 +12,7 @@
 #include "iomididialog.h"
 #include "rslider.h"
 #include "slider.h"
+#include "button.h"
 
 class MainWindow : public QMainWindow
 {
@@ -36,6 +37,8 @@ public:
 
 	QMenu* viewMenu;
 	QAction* showMidiConsoleAct;
+	QAction* showMidiChannelAct;
+	QAction* showMidiCCAct;
 
 	QMenu* helpMenu;
 	QAction* aboutAct;
@@ -48,7 +51,7 @@ private:
 
 	QVector<Slider*> sliders;
 	QVector<RSlider*> rsliders;
-	QVector<QPushButton*> buttons;
+	QVector<Button*> buttons;
 	void setMidiValue();
 	myCallback * midiCallback;
 	QVector<unsigned int> button_state;
@@ -58,6 +61,13 @@ private:
 
 	QString workingFile = "";
 	QString workingFileNew = "";
+
+	QLabel * ROW_1;
+	QLabel * ROW_2;
+	QLabel * ROW_3;
+	QLabel * _MUTE;
+	QLabel * _SOLO;
+	QLabel * REC_ARM;
 
 
 private slots:
@@ -78,4 +88,6 @@ public slots:
 	void setMidiInPort(const int);
 	void setMidiOutPort(const int);
 	void showMidiConsole(bool);
+	void showMidiChannel(bool);
+	void showMidiCC(bool);
 };

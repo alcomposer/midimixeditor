@@ -12,8 +12,8 @@ Slider::Slider(QWidget * parent) :
 	slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	QHBoxLayout * chan_number_layout = new QHBoxLayout();
 	QHBoxLayout * cc_number_layout = new QHBoxLayout();
-	QLabel * chan_label = new QLabel(tr("CH:"));
-	QLabel * cc_label = new QLabel(tr("CC:"));
+	chan_label = new QLabel(tr("CH:"));
+	cc_label = new QLabel(tr("CC:"));
 	QWidget * chan_number_wid = new QWidget();
 	QWidget * cc_number_wid = new QWidget();
 
@@ -59,4 +59,17 @@ int Slider::getChanNumber()
 int Slider::getCCNumber()
 {
 	return cc_number->value();
+}
+
+void Slider::set_cc_number_visibility(bool show)
+{
+	cc_number->setHidden(show);
+	cc_label->setHidden(show);
+
+}
+
+void Slider::set_channel_number_visibility(bool show)
+{
+	chan_number->setHidden(show);
+	chan_label->setHidden(show);
 }

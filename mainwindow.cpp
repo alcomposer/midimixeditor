@@ -62,6 +62,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	REC_ARM->setAlignment(Qt::AlignTop);
 
 	for (int i =0; i < 9; i++){
+		if (i < 8){
+			for (int j = 0; j < 3; j++){
+				int current = (i*3)+j;
+				rsliders.push_back(new RSlider(this));
+				rsliders.at(current)->r_slider->setMinimum(0);
+				rsliders.at(current)->r_slider->setMaximum(127);
+				MIDIMIX_layout->setSpacing(0);
+				MIDIMIX_layout->setMargin(0);
+				MIDIMIX_layout->setRowStretch(j,0);
+				MIDIMIX_layout->setColumnStretch(i,0);
+				MIDIMIX_layout->addWidget(rsliders.at(current),j,i);
+			}
+		}
 		sliders.push_back(new Slider());
 		sliders.at(i)->slider->setDisabled(true);
 		sliders.at(i)->slider->setMinimum(0);  //[todo] make a setMinimum() member in sliders.h
@@ -77,20 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
 			MIDIMIX_layout->addWidget(_MUTE,3,8);
 			MIDIMIX_layout->addWidget(_SOLO,4,8);
 			MIDIMIX_layout->addWidget(REC_ARM,5,8);
-		}
-
-		if (i < 8){
-			for (int j = 0; j < 3; j++){
-				int current = (i*3)+j;
-				rsliders.push_back(new RSlider(this));
-				rsliders.at(current)->r_slider->setMinimum(0);
-				rsliders.at(current)->r_slider->setMaximum(127);
-				MIDIMIX_layout->setSpacing(0);
-				MIDIMIX_layout->setMargin(0);
-				MIDIMIX_layout->setRowStretch(j,0);
-				MIDIMIX_layout->setColumnStretch(i,0);
-				MIDIMIX_layout->addWidget(rsliders.at(current),j,i);
-			}
 		}
 	}
 	/*
@@ -120,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		MIDIMIX_layout->addWidget(buttons.at(current),4,x);
 	}
 
-	connect(midiCallback, SIGNAL(sendMidi(int,int,int)), this, SLOT(setSlider(int,int,int)));
+	connect(midiCallback, SIGNAL(sendMidi(int,int,int,int)), this, SLOT(setSlider(int,int,int,int)));
 	connect(midiCallback, SIGNAL(sendSysEx(std::vector<unsigned char>*)), this, SLOT(setSysEx(std::vector<unsigned char>*)));
 
 	text_window = new QPlainTextEdit();
@@ -163,6 +162,7 @@ void MainWindow::createActions()
 	connect(loadFromHardwareAct, SIGNAL(triggered()), this, SLOT(loadFromHardware()));
 
 	sendToHardwareAct = new QAction(tr("Send &To Hardware"), this);
+	connect(sendToHardwareAct, SIGNAL(triggered()), this, SLOT(sendToHardware()));
 
 	midiSetupAct = new QAction(tr("&MIDI Setup"));
 	connect(midiSetupAct, SIGNAL(triggered()), this, SLOT(midiSetup()));
@@ -189,29 +189,34 @@ void MainWindow::createActions()
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 }
 
-void MainWindow::setSlider(int v, int cc, int value)
+void MainWindow::setSlider(int type, int channel, int cc, int value)
 {
 	//Vertical Sliders
-	text_window->appendPlainText("V: " + QString::number(v) + " CC: " + QString::number(cc) + " Value: " + QString::number(value));
-	if (v == 176){
-	if (cc == 19) sliders.at(0)->slider->setValue(value);
-	if (cc == 23) sliders.at(1)->slider->setValue(value);
-	if (cc == 27) sliders.at(2)->slider->setValue(value);
-	if (cc == 31) sliders.at(3)->slider->setValue(value);
-	if (cc == 49) sliders.at(4)->slider->setValue(value);
-	if (cc == 53) sliders.at(5)->slider->setValue(value);
-	if (cc == 57) sliders.at(6)->slider->setValue(value);
-	if (cc == 61) sliders.at(7)->slider->setValue(value);
-	if (cc == 62) sliders.at(8)->slider->setValue(value);
+	QString channelVal = QString("%1").arg(channel+1,2,10,QChar(' '));
+	QString ccVal = QString("%1").arg(cc,3,10,QChar(' '));
+	QString valueVal = QString("%1").arg(value,3,10,QChar(' '));
 
-	//Radial Sliders
-	for (int i = 0; i < rsliders.count(); i++){
-	if (cc == rsliders.at(i)->getCCNumber()) rsliders.at(i)->r_slider->setValue(value);
+	switch(type){
+		case 11: //midi cc
+			text_window->appendPlainText("CH: " + channelVal + " CC:   " + ccVal + "    Value: " + valueVal);
+		break;
+		case 9: //note-on
+			text_window->appendPlainText("CH: " + channelVal + " Note: " + ccVal + " ON  Value: " + valueVal);
+		break;
+		case 8: //note-off
+			text_window->appendPlainText("CH: " + channelVal + " Note: " + ccVal + " OFF Value: " + valueVal);
 	}
-}
+	if (type == 11){
+		for (int i = 0; i < sliders.count(); i++){
+			if (cc == sliders.at(i)->getCCNumber()) sliders.at(i)->slider->setValue(value);
+		}
+		//Radial Sliders
+		for (int i = 0; i < rsliders.count(); i++){
+		if (cc == rsliders.at(i)->getCCNumber()) rsliders.at(i)->r_slider->setValue(value);
+		}
+	}
 	//buttons
-	//if (cc == 1) buttons.at(0)->button->setDown(++button_state[0]%2);
-	//if (cc == 3) buttons.at(1)->button->setDown(++button_state[1]%2);
+	//[TODO] don't worry about implementing this right now
 
 
 }
@@ -266,21 +271,17 @@ void MainWindow::loadFromHardware()
 {
 	qInfo() << "[SysEx] loading from hardware";
 
+	//this is the SysEx message we send to the MIDIMIX in order to receive the current state of the device
 	std::vector<unsigned char> message;
 	message ={240, //sysex start
 			  71,  //akai
-			  0x00,
+			  0x00, //device id, [TODO] will need to change this if multiple devices preset
 			  49,
 			  0x66, //hex code to ask for hardware state
 			  247   //sysex end
 			 };
 
 	midiOut->sendMessage(&message);
-
-}
-
-void MainWindow::sendToHardware()
-{
 
 }
 
@@ -371,6 +372,47 @@ void MainWindow::setSysEx(std::vector<unsigned char> *message)
 	};
 	}
 }
+void MainWindow::sendToHardware()
+{
+	qInfo() << "sending to hardware";
+	std::vector<unsigned char> messageSetHardware, dialConfig, buttonConfig, sliderConfig, endMessage;
+	for (int i = 0; i < 24; i++){
+		dialConfig.push_back(static_cast<unsigned char>(rsliders.at(i)->getChanNumber()));
+		dialConfig.push_back(static_cast<unsigned char>(rsliders.at(i)->getCCNumber()));
+	}
+
+	for (int i = 0; i < 24; i++){
+		buttonConfig.push_back(static_cast<unsigned char>(buttons.at(i)->getChanNumber()));
+		buttonConfig.push_back(static_cast<unsigned char>(buttons.at(i)->getButtonState()));
+		buttonConfig.push_back(static_cast<unsigned char>(buttons.at(i)->getNoteCCNumber()));
+	}
+
+	for (int i = 0; i < 9; i++){
+		sliderConfig.push_back(static_cast<unsigned char>(sliders.at(i)->getChanNumber()));
+		sliderConfig.push_back(static_cast<unsigned char>(sliders.at(i)->getCCNumber()));
+	}
+
+
+	messageSetHardware = {240,
+						 71,
+						 0x00, //device id [TODO] see above
+						 49,
+						 100,
+						 1,
+						 10
+						 };
+	endMessage = {247};
+
+	messageSetHardware.insert(messageSetHardware.end(), dialConfig.begin(),dialConfig.end());
+	messageSetHardware.insert(messageSetHardware.end(), sliderConfig.begin(),sliderConfig.end());
+	messageSetHardware.insert(messageSetHardware.end(), buttonConfig.begin(),buttonConfig.end());
+	messageSetHardware.insert(messageSetHardware.end(), endMessage.begin(),endMessage.end());
+
+	//for (int i = 0; i < messageSetHardware.size(); i++){
+	//	qInfo() << "[OUT MESSAGE]" <<messageSetHardware.at(i);
+	//}
+	midiOut->sendMessage(&messageSetHardware);
+}
 
 void MainWindow::showMidiConsole(bool show)
 {
@@ -380,9 +422,13 @@ void MainWindow::showMidiConsole(bool show)
 void MainWindow::showMidiCC(bool show)
 {
 	for(int i = 0; i < sliders.size(); i++) sliders.at(i)->set_cc_number_visibility(!show);
+	for(int i = 0; i < buttons.size(); i++) buttons.at(i)->set_cc_number_visibility(!show);
+	for(int i = 0; i < rsliders.size(); i++) rsliders.at(i)->set_cc_number_visibility(!show);
 }
 
 void MainWindow::showMidiChannel(bool show)
 {
 	for(int i = 0; i < sliders.size(); i++) sliders.at(i)->set_channel_number_visibility(!show);
+	for(int i = 0; i < buttons.size(); i++) buttons.at(i)->set_channel_number_visibility(!show);
+	for(int i = 0; i < rsliders.size(); i++) rsliders.at(i)->set_channel_number_visibility(!show);
 }

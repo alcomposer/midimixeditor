@@ -71,7 +71,7 @@ private:
 
 
 private slots:
-	void setSlider(int, int, int);
+	void setSlider(int, int, int, int);
 
 	void newPreset();
 	void openPreset();

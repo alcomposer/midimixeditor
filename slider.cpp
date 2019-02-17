@@ -1,5 +1,6 @@
 #include "slider.h"
 #include <QLabel>
+#include <QDebug>
 
 Slider::Slider(QWidget * parent) :
 	QWidget(parent),
@@ -48,7 +49,7 @@ Slider::Slider(QWidget * parent) :
 
 void Slider::setChanNumber(int value)
 {
-	chan_number->setValue(value);
+	chan_number->setValue(value+1);
 }
 
 void Slider::setCCNumber(int value)
@@ -57,7 +58,7 @@ void Slider::setCCNumber(int value)
 }
 int Slider::getChanNumber()
 {
-	return chan_number->value();
+	return chan_number->value()-1;
 }
 int Slider::getCCNumber()
 {

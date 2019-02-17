@@ -3,6 +3,7 @@
 #include <QIntValidator>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QDebug>
 
 RSlider::RSlider(QWidget *parent) :
 	QWidget(parent),
@@ -17,8 +18,8 @@ RSlider::RSlider(QWidget *parent) :
 	//r_slider->setSizePolicy(QSizePolicy::MinimumExpanding);
 	QHBoxLayout * chan_number_layout = new QHBoxLayout();
 	QHBoxLayout * cc_number_layout = new QHBoxLayout();
-	QLabel * chan_label = new QLabel(tr("CH:"));
-	QLabel * cc_label = new QLabel(tr("CC:"));
+	chan_label = new QLabel(tr("CH:"));
+	cc_label = new QLabel(tr("CC:"));
 	QWidget * chan_number_wid = new QWidget();
 	QWidget * cc_number_wid = new QWidget();
 
@@ -51,7 +52,7 @@ RSlider::RSlider(QWidget *parent) :
 
 void RSlider::setChanNumber(int value)
 {
-	chan_number->setValue(value);
+	chan_number->setValue(value+1);
 }
 
 void RSlider::setCCNumber(int value)
@@ -60,9 +61,22 @@ void RSlider::setCCNumber(int value)
 }
 int RSlider::getChanNumber()
 {
-	return chan_number->value();
+	return chan_number->value()-1;
 }
 int RSlider::getCCNumber()
 {
 	return cc_number->value();
 }
+void RSlider::set_cc_number_visibility(bool show)
+{
+	cc_number->setHidden(show);
+	cc_label->setHidden(show);
+
+}
+
+void RSlider::set_channel_number_visibility(bool show)
+{
+	chan_number->setHidden(show);
+	chan_label->setHidden(show);
+}
+

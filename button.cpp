@@ -10,7 +10,8 @@ Button::Button(QWidget *parent) :
 	button_layout(new QVBoxLayout(this)),
 	note_number(new QSpinBox(this)),
 	chan_number(new QSpinBox(this)),
-	cc_number(new QSpinBox(this))
+	cc_number(new QSpinBox(this)),
+	cc_midi_visability(true)
 {
 	button_mode = BMode::NOTE;  //[TODO] hard coded for now, needs to read default setup
 
@@ -23,9 +24,9 @@ Button::Button(QWidget *parent) :
 	QHBoxLayout * chan_number_layout = new QHBoxLayout();
 	QHBoxLayout * cc_number_layout   = new QHBoxLayout();
 
-	QLabel * note_label = new QLabel(tr("NT:"));
-	QLabel * chan_label = new QLabel(tr("CH:"));
-	QLabel * cc_label   = new QLabel(tr("CC:"));
+	note_label = new QLabel(tr("NT:"));
+	chan_label = new QLabel(tr("CH:"));
+	cc_label   = new QLabel(tr("CC:"));
 
 	note_number_wid = new QWidget();
 	chan_number_wid = new QWidget();
@@ -86,12 +87,10 @@ void Button::set_button_text()
 void Button::update_display()
 {
 	if(button_mode==BMode::NOTE){
-		qInfo() << "hiding cc number";
 		cc_number_wid->setHidden(true);
 		note_number_wid->setHidden(false);
 		button->setText(tr("NOTE"));
 	}else {
-		qInfo() << "hiding note number";
 		cc_number_wid->setHidden(false);
 		note_number_wid->setHidden(true);
 		button->setText(tr("CC"));
@@ -106,7 +105,7 @@ void Button::setButtonMode(BMode::buttonMode mode)
 
 void Button::setChanNumber(int value)
 {
-	chan_number->setValue(value);
+	chan_number->setValue(value+1);
 }
 
 void Button::setCCNumber(int value)
@@ -118,3 +117,37 @@ void Button::setNoteNumber(int value)
 {
 	note_number->setValue(value);
 }
+void Button::set_cc_number_visibility(bool show)
+{
+	cc_number->setHidden(show);
+	cc_label->setHidden(show);
+	note_number->setHidden(show);
+	note_label->setHidden(show);
+	cc_midi_visability = !show;
+}
+
+int Button::getChanNumber()
+{
+	return chan_number->value()-1; //we have to minus 1 as we are displaying the value as 1 indexed
+}
+
+int Button::getButtonState()
+{
+	return !button_mode;
+}
+
+int Button::getNoteCCNumber()
+{
+	if (button_mode==BMode::CC){
+		return cc_number->value();
+	}else {
+		return note_number->value();
+	}
+}
+
+void Button::set_channel_number_visibility(bool show)
+{
+	chan_number->setHidden(show);
+	chan_label->setHidden(show);
+}
+

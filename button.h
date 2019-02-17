@@ -22,14 +22,25 @@ public:
 	void setChanNumber(int);
 	void setCCNumber(int);
 	void setNoteNumber(int);
+	void set_channel_number_visibility(bool show);
+	void set_cc_number_visibility(bool show);
+
+	int getChanNumber();
+	int getButtonState();
+	int getNoteCCNumber();
+
 private:
 	bool button_mode;
+	bool cc_midi_visability;
 	QLabel * button_text;
 
 	QVBoxLayout * button_layout;
 	QSpinBox * note_number;
 	QSpinBox * chan_number;
 	QSpinBox * cc_number;
+	QLabel * cc_label;
+	QLabel * note_label;
+	QLabel * chan_label;
 
 	QWidget * note_number_wid;
 	QWidget * chan_number_wid;

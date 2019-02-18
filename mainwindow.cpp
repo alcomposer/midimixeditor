@@ -125,6 +125,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	text_window = new QPlainTextEdit();
 	text_window->setFont(QFont("mono"));
 	text_window->setReadOnly(true);
+	text_window->setMinimumWidth(330);
 	//text_window->setHidden(true);
 
 	QHBoxLayout * mainWindowLayout = new QHBoxLayout();
@@ -151,6 +152,7 @@ void MainWindow::createActions()
 	connect(newAct, SIGNAL(triggered()), this, SLOT(newPreset()));
 
 	openPresetAct = new QAction(tr("&Open Preset..."), this);
+	connect(openPresetAct, SIGNAL(triggered()), this, SLOT(openPreset()));
 
 	saveAct = new QAction(tr("&Save"), this);
 	connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
@@ -225,7 +227,7 @@ void MainWindow::newPreset()
 {
 	QFileDialog * newPresetDialog = new QFileDialog();
 	newPresetDialog->setFileMode(QFileDialog::AnyFile);
-	workingFile = newPresetDialog->getSaveFileName(this, "Create New Preset");
+	workingFile = newPresetDialog->getSaveFileName(this, tr("Create New Preset"));
 	QFile newPreset(workingFile);
 	newPreset.open(QIODevice::WriteOnly);
 	newPreset.close();
@@ -235,7 +237,37 @@ void MainWindow::newPreset()
 
 void MainWindow::openPreset()
 {
+	QFileDialog * openPresetDialog = new QFileDialog();
+	openPresetDialog->setFileMode(QFileDialog::AnyFile);
+	workingFile = openPresetDialog->getOpenFileName(this, tr("Open MIDI MIX Preset"));
+	QFile openPreset(workingFile);
+	openPreset.open(QIODevice::ReadOnly);
+	QDataStream stream(&openPreset);
+	std::vector<unsigned char> message;
+	unsigned char tempChar;
+	do{
+		stream >> tempChar;
+		message.push_back(tempChar);
+	}while (!stream.atEnd());
 
+	for (int i = 0; i < message.size(); i++){
+		qInfo() << "file at: " << i << " " << message.at(i);
+	}
+	if (message.size() == 146 &&
+		message.at(0)  == 240 &&
+		message.at(1)  == 71  &&
+		message.at(2)  == 0   &&
+		message.at(3)  == 49  &&
+		message.at(4)  == 103
+		){
+		setSysEx(&message);
+		qInfo() << "reading message";
+	}
+
+	//setSysEx(&message);
+	openPreset.close();
+	delete openPresetDialog;
+	setWindowTitle(*app_name + QString(": ") + workingFile);
 }
 
 void MainWindow::save()
@@ -244,12 +276,30 @@ void MainWindow::save()
 		qInfo() << "We have a data file";
 		QFile saveData(workingFile);
 		saveData.open(QIODevice::WriteOnly);
-		QTextStream stream(&saveData);
-		int i, j;
-		for (i = 0, j = 8; i < 24; i++, j+=2){
-			stream << rsliders.at(i)->getCCNumber() << endl;
-			stream << rsliders.at(i)->getChanNumber()-1 << endl;
+		QDataStream stream(&saveData);
+		//stream.setIntegerBase(16);
+		stream <<	static_cast<unsigned char>(240) <<
+					static_cast<unsigned char>(71) <<
+					static_cast<unsigned char>(0) <<
+					static_cast<unsigned char>(49) <<
+					static_cast<unsigned char>(103) <<
+					static_cast<unsigned char>(1) <<
+					static_cast<unsigned char>(10);
+		int i;
+		for (i = 0; i < 24; i++){
+			stream << static_cast<unsigned char>( rsliders.at(i)->getChanNumber() );
+			stream << static_cast<unsigned char>( rsliders.at(i)->getCCNumber() );
 		}
+		for (i = 0; i < 9; i++){
+			stream << static_cast<unsigned char>( sliders.at(i)->getChanNumber() );
+			stream << static_cast<unsigned char>( sliders.at(i)->getCCNumber() );
+		}
+		for (i = 0; i < 24; i++){
+			stream << static_cast<unsigned char>( buttons.at(i)->getChanNumber() );
+			stream << static_cast<unsigned char>( buttons.at(i)->getButtonState() );
+			stream << static_cast<unsigned char>( buttons.at(i)->getNoteCCNumber() );
+		}
+		stream << static_cast<unsigned char>(247);
 		saveData.close();
 	} else saveAs();
 }
@@ -258,9 +308,11 @@ void MainWindow::saveAs()
 {
 	QFileDialog * savePresetAs = new QFileDialog();
 	savePresetAs->setFileMode(QFileDialog::AnyFile);
+	//savePresetAs->setDefaultSuffix("midimix");
 	workingFileNew = savePresetAs->getSaveFileName(this, "Save Preset As");
 	delete savePresetAs;
 	if (workingFileNew != ""){
+		workingFileNew.append(".midimix");
 		workingFile = workingFileNew;
 		save();
 		setWindowTitle(*app_name + QString(": ") + workingFile);
@@ -350,7 +402,7 @@ void MainWindow::setSysEx(std::vector<unsigned char> *message)
 {
 
 	for (int i = 0; i < message->size(); i++){
-	qInfo() << static_cast<int>(message->at(i));
+	//qInfo() << static_cast<int>(message->at(i));  //[FIXME]
 	}
 	int i, j;
 	for (i = 0, j = 7; i < 24; i++, j+=2){
@@ -408,9 +460,6 @@ void MainWindow::sendToHardware()
 	messageSetHardware.insert(messageSetHardware.end(), buttonConfig.begin(),buttonConfig.end());
 	messageSetHardware.insert(messageSetHardware.end(), endMessage.begin(),endMessage.end());
 
-	//for (int i = 0; i < messageSetHardware.size(); i++){
-	//	qInfo() << "[OUT MESSAGE]" <<messageSetHardware.at(i);
-	//}
 	midiOut->sendMessage(&messageSetHardware);
 }
 

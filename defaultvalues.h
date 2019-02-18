@@ -17,16 +17,14 @@ along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <QObject>
-#include <QDialog>
-#include "iomidiselect.h"
+#include <vector>
 
-class IOMidiDialog : public QDialog
+class DefaultValues
 {
-	Q_OBJECT
 public:
-	IOMidiDialog(QWidget* parent = nullptr);
-	void setPortLists(int currentInPort, QVector<QString> inPorts, int currentOutPort, QVector<QString> outPorts);
+	DefaultValues();
+	std::vector<unsigned char> * get();
 private:
-	IOMidiSelect * selectMIDI;
+	std::vector<unsigned char> defaults;
 };
+

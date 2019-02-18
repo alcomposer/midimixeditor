@@ -1,3 +1,20 @@
+/*
+This file is part of MIDI MIX EDIT.
+
+MIDI MIX EDIT is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+MIDI MIX EDIT is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "mainwindow.h"
 #include "mycallback.h"
 #include "iomididialog.h"
@@ -29,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ROW_3(new   QLabel(tr("ROW 3"),this)),
 	_MUTE(new   QLabel(tr("MUTE"),this)),
 	_SOLO(new   QLabel(tr("SOLO"),this)),
-	REC_ARM(new QLabel(tr("REC ARM"),this))
+	REC_ARM(new QLabel(tr("REC ARM"),this)),
+	_defaults(new DefaultValues)
 {
 	setWindowTitle(*app_name);
 
@@ -232,6 +250,7 @@ void MainWindow::newPreset()
 	newPreset.open(QIODevice::WriteOnly);
 	newPreset.close();
 	delete newPresetDialog;
+	setSysEx(_defaults->get());
 	setWindowTitle(*app_name + QString(": ") + workingFile);
 }
 
@@ -250,9 +269,7 @@ void MainWindow::openPreset()
 		message.push_back(tempChar);
 	}while (!stream.atEnd());
 
-	for (int i = 0; i < message.size(); i++){
-		qInfo() << "file at: " << i << " " << message.at(i);
-	}
+	//test to make sure we have a good message [todo] add warning if bad data
 	if (message.size() == 146 &&
 		message.at(0)  == 240 &&
 		message.at(1)  == 71  &&
@@ -261,10 +278,7 @@ void MainWindow::openPreset()
 		message.at(4)  == 103
 		){
 		setSysEx(&message);
-		qInfo() << "reading message";
 	}
-
-	//setSysEx(&message);
 	openPreset.close();
 	delete openPresetDialog;
 	setWindowTitle(*app_name + QString(": ") + workingFile);
@@ -278,6 +292,7 @@ void MainWindow::save()
 		saveData.open(QIODevice::WriteOnly);
 		QDataStream stream(&saveData);
 		//stream.setIntegerBase(16);
+
 		stream <<	static_cast<unsigned char>(240) <<
 					static_cast<unsigned char>(71) <<
 					static_cast<unsigned char>(0) <<
@@ -400,10 +415,6 @@ void MainWindow::about(){
 
 void MainWindow::setSysEx(std::vector<unsigned char> *message)
 {
-
-	for (int i = 0; i < message->size(); i++){
-	//qInfo() << static_cast<int>(message->at(i));  //[FIXME]
-	}
 	int i, j;
 	for (i = 0, j = 7; i < 24; i++, j+=2){
 		rsliders.at(i)->setChanNumber(static_cast<int>(message->at(j)));

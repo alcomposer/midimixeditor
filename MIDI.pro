@@ -33,7 +33,8 @@ SOURCES += \
     rslider.cpp \
     about.cpp \
     slider.cpp \
-    button.cpp
+    button.cpp \
+    defaultvalues.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     rslider.h \
     about.h \
     slider.h \
-    button.h
+    button.h \
+    defaultvalues.h
 
 LIBS += -L "rtmidi/" -lrtmidi
 

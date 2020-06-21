@@ -246,6 +246,7 @@ void MainWindow::newPreset()
 	QFileDialog * newPresetDialog = new QFileDialog();
 	newPresetDialog->setFileMode(QFileDialog::AnyFile);
 	workingFile = newPresetDialog->getSaveFileName(this, tr("Create New Preset"));
+	workingFile.append(".midimix");
 	QFile newPreset(workingFile);
 	newPreset.open(QIODevice::WriteOnly);
 	newPreset.close();

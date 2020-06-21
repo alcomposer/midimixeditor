@@ -27,6 +27,7 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+    midi.cpp \
     mycallback.cpp \
     iomidiselect.cpp \
     iomididialog.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     mycallback.h \
+    midi.h \
     iomidiselect.h \
     iomididialog.h \
     rslider.h \
